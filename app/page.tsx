@@ -103,6 +103,7 @@ export default function Home() {
 "use client"; 
 
 import { UserButton, useUser } from "@clerk/nextjs";
+import Link from 'next/link'
 
 export default function HomePage() {
   const { isSignedIn, user } = useUser();
@@ -123,7 +124,7 @@ export default function HomePage() {
           </div>
         </>
       ) : (
-        <a href="/sign-in" className="mt-4 text-blue-500 underline">Get Started</a>
+        <Link href="/sign-in" className="mt-4 text-blue-500 underline">Get Started</Link>
       )}
     </main>
   );
