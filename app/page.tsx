@@ -1,4 +1,4 @@
-import Image from "next/image";
+/* import Image from "next/image";
 
 export default function Home() {
   return (
@@ -97,5 +97,34 @@ export default function Home() {
         </a>
       </footer>
     </div>
+  );
+} */
+
+"use client"; 
+
+import { UserButton, useUser } from "@clerk/nextjs";
+
+export default function HomePage() {
+  const { isSignedIn, user } = useUser();
+
+  return (
+    <main className="flex flex-col items-center justify-center min-h-screen text-center">
+      <h1 className="text-4xl font-bold">Momentum</h1>
+
+      {isSignedIn ? (
+        <>
+          <h2 className="text-xl mt-4">Welcome, {user?.firstName}!</h2>
+          <UserButton />
+          <p className="mt-4">Select your focus for today:</p>
+          <div className="flex space-x-4 mt-4">
+            <button className="px-4 py-2 bg-blue-500 text-white rounded">Motivation</button>
+            <button className="px-4 py-2 bg-green-500 text-white rounded">Productivity</button>
+            <button className="px-4 py-2 bg-red-500 text-white rounded">Stress Relief</button>
+          </div>
+        </>
+      ) : (
+        <a href="/sign-in" className="mt-4 text-blue-500 underline">Get Started</a>
+      )}
+    </main>
   );
 }
