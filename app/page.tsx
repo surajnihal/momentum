@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { UserButton, useUser } from "@clerk/nextjs";
+import Link from "next/link";
 
 export default function HomePage() {
   const { isSignedIn, user } = useUser();
@@ -92,7 +93,7 @@ export default function HomePage() {
 
           {/* Goal Input */}
           <div className="mt-6">
-            <label className="block text-lg font-medium">What's your goal today?</label>
+            <label className="block text-lg font-medium">What&#39;s your goal today</label>
             <input
               type="text"
               placeholder="I want to feel more confident..."
@@ -152,7 +153,7 @@ export default function HomePage() {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center h-screen -mt-30 -ml-10">
-          <a href="/sign-in" className="text-5xl text-[#fdf4d3]">Get Started</a>
+          <Link href="/sign-in" className="text-5xl text-[#fdf4d3]">Get Started</Link>
         </div>  
       )}
       </div>

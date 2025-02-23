@@ -1,5 +1,5 @@
 export async function getMotivationalContent(mood: string, goal: string, focusArea: string) {
-    let prompt = `The user is feeling ${mood}, their goal is "${goal}", and they want guidance on "${focusArea}". 
+    const prompt = `The user is feeling ${mood}, their goal is "${goal}", and they want guidance on "${focusArea}". 
     Generate a response that is **warm, uplifting, and natural-sounding**. Weave everything into a smooth, conversational flow.  
     The response should:
     - Start with an encouraging sentence that makes the user feel seen and supported.
