@@ -1,0 +1,12 @@
+@keyframes pulse {
+    0%, 100% {
+      background-image: radial-gradient(circle at 50% 50%,#f9114d,#f77f4c,#fdf4d3)
+    }
+    50% {
+     background-image: radial-gradient(circle at 50% 50%,#fdf4d3, #f77f4c, #f9114d)
+    }
+  }
+  
+  main {
+    animation: pulse 2s infinite;
+  }

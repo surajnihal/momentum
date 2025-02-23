@@ -1,131 +1,162 @@
-/* import Image from "next/image";
+"use client";
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
-} */
-
-"use client"; 
-
+import { useState } from "react";
 import { UserButton, useUser } from "@clerk/nextjs";
-import Link from 'next/link'
 
 export default function HomePage() {
   const { isSignedIn, user } = useUser();
+  const [content, setContent] = useState("");
+  // const [isSignedIn_visible, setisSignedIn_visible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [audioLoading, setAudioLoading] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [mood, setMood] = useState("");
+  const [goal, setGoal] = useState("");
+  const [focusArea, setFocusArea] = useState("");
+
+  async function fetchAIResponse() {
+    if (!mood || !goal || !focusArea) return alert("Please select all options before proceeding!");
+
+    setLoading(true);
+    setAudioUrl(null); // Reset audio when new text is generated
+
+    try {
+      const res = await fetch("/api/motivation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mood, goal, focusArea }),
+      });
+
+      const data = await res.json();
+      
+      if (!data.content) {
+        setContent("⚠️ Oops! Something went wrong. Please try again.");
+      } else {
+        const formattedContent = data.content
+          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // Bold formatting
+          .replace(/\n/g, "<br>"); // Line breaks for readability
+
+        setContent(formattedContent);
+      }
+    } catch (error) {
+      console.error("Error fetching AI response:", error);
+      setContent("⚠️ Error loading response. Please try again.");
+    }
+
+    setLoading(false);
+  }
+
+  async function handleListen() {
+    if (!content) return;
+    
+    setAudioLoading(true);
+    const res = await fetch("/api/speech", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: content }),
+    });
+    const blob = await res.blob();
+    const speechUrl = URL.createObjectURL(blob); // Creates a playable audio link
+    if (speechUrl) setAudioUrl(speechUrl);
+    setAudioLoading(false);
+  }
+
+  function handleListenStop() {
+    setAudioUrl(null)
+  }
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen text-center">
-      <h1 className="text-4xl font-bold">Momentum</h1>
-
+    <main className="bg-[radial-gradient(circle_at_50%_50%,#f9114d,#f77f4c,#fdf4d3)] min-h-screen text-center px-4 text-black">
+      <div className="flex flex-col items-center justify-center">
+      <div className="flex m-6 w-full justify-between items-center"> <h1 className="text-2xl font-bold">Momentum</h1>
+      <UserButton /></div>
+      
       {isSignedIn ? (
-        <>
-          <h2 className="text-xl mt-4">Welcome, {user?.firstName}!</h2>
-          <UserButton />
-          <p className="mt-4">Select your focus for today:</p>
-          <div className="flex space-x-4 mt-4">
-            <button className="px-4 py-2 bg-blue-500 text-white rounded">Motivation</button>
-            <button className="px-4 py-2 bg-green-500 text-white rounded">Productivity</button>
-            <button className="px-4 py-2 bg-red-500 text-white rounded">Stress Relief</button>
+        <div  className="flex flex-col justify-center items-center">
+          <div>
+            <h2 className="text-2xl">hi {user?.firstName}, welcome to your safe space.</h2>
           </div>
-        </>
+
+          <div className="flex items-center gap-16">
+          {/* Mood Selector */}
+          <div className="mt-6">
+            <label className="block text-lg font-medium">How are you feeling?</label>
+            <select className="mt-2 p-2 border rounded" value={mood} onChange={(e) => setMood(e.target.value)}>
+              <option value="">Select Mood</option>
+              <option value="stressed">😞 Stressed</option>
+              <option value="anxious">😰 Anxious</option>
+              <option value="unmotivated">😴 Unmotivated</option>
+              <option value="distracted">🤯 Distracted</option>
+            </select>
+          </div>
+
+          {/* Goal Input */}
+          <div className="mt-6">
+            <label className="block text-lg font-medium">What's your goal today?</label>
+            <input
+              type="text"
+              placeholder="I want to feel more confident..."
+              className="mt-2 p-2 border rounded w-80"
+              value={goal}
+              onChange={(e) => setGoal(e.target.value)}
+            />
+          </div>
+
+          {/* Focus Area Selector */}
+          <div className="mt-6">
+            <label className="block text-lg font-medium">Choose a Focus Area</label>
+            <select className="mt-2 p-2 border rounded" value={focusArea} onChange={(e) => setFocusArea(e.target.value)}>
+              <option value="">Select Topic</option>
+              <option value="gratitude">💖 Gratitude</option>
+              <option value="self-care">🧘 Self-Care</option>
+              <option value="productivity">🚀 Productivity</option>
+              <option value="letting go">🌿 Letting Go</option>
+            </select>
+          </div>
+          </div>
+
+          <div className="flex items-center gap-6 justify-center mt-6">
+          <button onClick={fetchAIResponse} className="btn btn-primary">Generate Guidance</button>
+
+          {/* Listen Button */}
+          {content && !audioLoading && ( !audioUrl ?
+            (<button onClick={handleListen} className="btn btn-secondary">
+               Hear Me Out
+            </button>) :  (<button onClick={handleListenStop} className="btn btn-alternate">
+            Stop
+          </button>)
+          )}
+          {content && audioLoading && ( 
+            (<button onClick={handleListen} className="btn btn-alternate btn-disabled" disabled>
+              Loading...
+            </button>)
+          )}
+          </div>
+          {/* AI Response Display */}
+          {loading ? (
+            <p className="mt-4 text-gray-500">Loading...</p>
+          ) : (
+            <div className="mt-6 text-lg bg-gray-100/40 p-4 rounded-xl shadow-md text-left max-w-[800px] animate-fade-in flex items-center justify-center">
+              <div dangerouslySetInnerHTML={{ __html: content }} />
+            </div>
+          )}
+
+
+          {/* Audio Player */}
+          {audioUrl && (
+            <audio autoPlay hidden controls className="mt-4">
+              <source src={audioUrl} type="audio/mpeg"/>
+              Your browser does not support the audio element.
+            </audio>
+          )}
+        </div>
       ) : (
-        <Link href="/sign-in" className="mt-4 text-blue-500 underline">Get Started</Link>
+        <div className="flex flex-col items-center justify-center h-screen -mt-30 -ml-10">
+          <a href="/sign-in" className="text-5xl text-[#fdf4d3]">Get Started</a>
+        </div>  
       )}
+      </div>
     </main>
   );
 }
+

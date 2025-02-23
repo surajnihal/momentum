@@ -1,21 +1,97 @@
-@tailwind base;
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap');
+@import 'tailwindcss';
+/* @tailwind base;
 @tailwind components;
-@tailwind utilities;
+@tailwind utilities; */
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'DM Serif Display', sans-serif;
 }
+
+@keyframes fadePage {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+body {
+  animation: fadePage 0.5s ease-in-out;
+}
+
+.btn {
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.4s ease-in-out;
+  backdrop-filter: blur(8px); /* Subtle glass effect */
+  color: #fdf4d3;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover Effect - Smooth Brightness Change */
+.btn:hover {
+  filter: brightness(1.0);
+  transform: scale(1.03);
+}
+
+/* Soft Color Transition (Primary - Red-Pink) */
+.btn-primary {
+  background: linear-gradient(120deg, #f9114d, #f77f4c);
+  box-shadow: 0px 4px 10px rgba(249, 17, 77, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(120deg, #f77f4c, #fdf4d3);
+  box-shadow: 0px 6px 14px rgba(249, 17, 77, 0.4);
+}
+
+/* Soft Color Transition (Secondary - Coral) */
+.btn-secondary {
+  background: linear-gradient(120deg, #f9114d, #f77f4c);
+  box-shadow: 0px 4px 10px rgba(249, 17, 77, 0.3);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(120deg, #f77f4c, #fdf4d3);
+  box-shadow: 0px 6px 14px rgba(249, 17, 77, 0.4);
+}
+
+/* Soft Cream - Gentle Hover */
+.btn-alternate {
+  background: rgba(253, 244, 211, 0.8);
+  color: #2c2c2c;
+  box-shadow: 0px 2px 6px rgba(253, 244, 211, 0.3);
+}
+
+.btn-alternate:hover {
+  background: rgba(253, 244, 211, 1);
+  box-shadow: 0px 4px 10px rgba(253, 244, 211, 0.4);
+  transform: scale(1.03);
+}
+
+/* Click (Active) Effect */
+.btn:active {
+  transform: scale(0.97);
+  filter: brightness(0.95);
+}
+
+/* Disabled State */
+.btn-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(0.3);
+}
+
